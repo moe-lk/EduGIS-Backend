@@ -1,38 +1,15 @@
-#### Stage 1: Build the application
-FROM openjdk:8-jdk-alpine as build
-
-COPY target/gis-*.jar /gis-api.jar
-
-# Set the current working directory inside the image
-# WORKDIR /api
+# FROM java:8
+# WORKDIR /app
+# ADD target/gis-*.jar /app/gis-api.jar
+# ENTRYPOINT ["java","-jar","gis-api.jar"]
+FROM maven:3.5-jdk-8
+# COPY src /usr/src/app/src
+# COPY pom.xml /usr/src/app
+# RUN mvn -f /usr/src/app/pom.xml clean package
 #
-# # Copy maven executable to the image
-# COPY mvnw .
-# COPY .mvn .mvn
 #
-# # Copy the pom.xml file
-# COPY pom.xml .
-#
-# # Build all the dependencies in preparation to go offline.
-# # This is a separate step so the dependencies will be cached unless
-# # the pom.xml file has changed.
-# RUN ./mvnw dependency:go-offline -B
-#
-# # Copy the project source
-# COPY src src
-#
-# # Package the application
-# RUN ./mvnw package -DskipTests
-# RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
-#
-# #### Stage 2: A minimal docker image with command to run the app
-# FROM openjdk:8-jre-alpine
-#
-# ARG DEPENDENCY=/api/target/dependency
-#
-# # Copy project dependencies from the build stage
-# COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-# COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-# COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-#
-# ENTRYPOINT ["java","-cp","api:api/lib/*","lk.moe.gisrestservice.GisRestServiceApplication"]
+# VOLUME /tmp
+# EXPOSE 8080
+# ARG JAR_FILE
+# # COPY target/dependencies/gis-*.jar gis-api.jar
+# ENTRYPOINT ["java","-jar","/usr/src/app/target/gis-*.jar"]
