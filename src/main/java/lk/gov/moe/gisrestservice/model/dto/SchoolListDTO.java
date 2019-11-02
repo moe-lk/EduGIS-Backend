@@ -7,7 +7,9 @@ public class SchoolListDTO implements Serializable {
 
 	private List<School> schools;
 	private Integer total;
+	private String message;
 	public SchoolListDTO() {}
+
 	public SchoolListDTO(List<School> schools) {
 		this.schools = schools;
 		this.total = schools.size();

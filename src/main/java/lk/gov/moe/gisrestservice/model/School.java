@@ -55,7 +55,7 @@ public class School implements Serializable {
 	private String gender;
 
 	@Column(name = "school_category")
-	@ApiModelProperty(notes = "School category", example = "Mixed", required = false, position = 8)
+	@ApiModelProperty(notes = "School category", example = "P", required = false, position = 8)
 	private String category;
 
 	public Long getSchoolCensus() {

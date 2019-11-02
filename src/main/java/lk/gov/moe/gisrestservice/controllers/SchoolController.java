@@ -2,17 +2,24 @@ package lk.gov.moe.gisrestservice.controllers;
 
 import io.swagger.annotations.*;
 import lk.gov.moe.gisrestservice.model.School;
+import lk.gov.moe.gisrestservice.model.api.FilterRequest;
 import lk.gov.moe.gisrestservice.model.geo.GeoJSON;
 import lk.gov.moe.gisrestservice.model.geo.GeoObject;
 import lk.gov.moe.gisrestservice.exception.BadRequestException;
 import lk.gov.moe.gisrestservice.exception.NotFoundException;
 import lk.gov.moe.gisrestservice.model.dto.SchoolListDTO;
 import lk.gov.moe.gisrestservice.service.SchoolService;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Payload;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -23,16 +30,16 @@ public class SchoolController {
 	@Autowired
 	SchoolService schoolService;
 
-	@RequestMapping(method = RequestMethod.GET)
-	@ApiOperation(
-		value = "All schools in the database",
-		response = SchoolListDTO.class
-	)
-	public List<School> getAllSchools() {
-
-		SchoolListDTO schoolListDto = new SchoolListDTO(schoolService.getSchools());
-		return schoolService.getSchools();
-	}
+//	@RequestMapping(method = RequestMethod.GET)
+//	@ApiOperation(
+//		value = "All schools in the database",
+//		response = SchoolListDTO.class
+//	)
+//	public List<School> getAllSchools() {
+//
+//		SchoolListDTO schoolListDto = new SchoolListDTO(schoolService.getSchools());
+//		return schoolService.getSchools();
+//	}
 
 	@RequestMapping(value="/test", method = RequestMethod.GET)
 	@ApiOperation(
@@ -44,6 +51,14 @@ public class SchoolController {
 		return "endpoint working1123";
 	}
 
+	@RequestMapping(value="/search", method = RequestMethod.GET)
+	public ResponseEntity<SchoolListDTO> searchSchools(@RequestParam String name) {
+
+		SchoolListDTO schoolListDto = new SchoolListDTO(schoolService.searchSchoolsByNames(name));
+
+		return ResponseEntity.ok(schoolListDto);
+
+	}
 
 	@RequestMapping(value="/census/{schoolId}", method = RequestMethod.GET)
 	@ApiOperation(
@@ -62,6 +77,7 @@ public class SchoolController {
 
 		return schoolService.getSchoolById(schoolId);
 	}
+
 
 	@RequestMapping(value="/zone/{schoolZone}", method = RequestMethod.GET)
 	@ApiOperation(
@@ -100,7 +116,7 @@ public class SchoolController {
 		//validate types
 		if (!schoolService.validType(schoolTypes)) {
 
-			throw new BadRequestException("Invalid School Type");
+			throw new BadRequestException("Invalid school type");
 
 		}
 		SchoolListDTO schoolListDto = new SchoolListDTO(schoolService.getSchoolsByTypes(schoolTypes));
@@ -117,6 +133,30 @@ public class SchoolController {
 
 		List<? extends GeoObject> geoSchoolsList = schoolService.geoGetSchools();
 		return ResponseEntity.ok(new GeoJSON((List<GeoObject>) geoSchoolsList));
+	}
+
+
+	@RequestMapping(value="/filter", method = RequestMethod.POST)
+	@ApiOperation(
+		value = "Returns schools by type, category and gender composition", notes = "returns filtered schools",
+		response = SchoolListDTO.class
+	)
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = ""),
+		@ApiResponse(code = 400, message = "Invalid school type"),
+		@ApiResponse(code = 400, message = "Invalid school category"),
+		@ApiResponse(code = 400, message = "Invalid school gender ")
+		}
+	)
+	public ResponseEntity<SchoolListDTO> filterSchools(@RequestBody
+														   FilterRequest payload) {
+
+		ArrayList<String> typeList = payload.getType();
+		ArrayList<String> categoryList = payload.getCategory();
+		ArrayList<String> genderList = payload.getGender();
+
+		return schoolService.filterSchools(typeList, categoryList, genderList);
+
 	}
 
 

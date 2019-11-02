@@ -22,3 +22,9 @@ JAR file generate at target\{gis-VERSION.jar}
 
 
 
+CURL Examples
+curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"name":"value"}' http://localhost:8080/schools/filter
+
+
+
+

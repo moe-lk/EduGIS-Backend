@@ -25,4 +25,11 @@ public interface SchoolRepository extends CrudRepository<School, Long> {
 
 	@Query(value = "SELECT DISTINCT school_zone FROM schools", nativeQuery=true)
 	List<String> findSchoolZones();
+
+	@Query(value = "SELECT * FROM schools WHERE school_name LIKE %?1%", nativeQuery=true)
+	List<School> findSchoolsByName(String schoolString);
+
+	@Query(value = "SELECT * FROM schools WHERE school_type in (?1) and school_category in (?2) and gender_composition in (?3)", nativeQuery=true)
+	List<School> findSchoolsBySchoolTypeInAndCategoryInAndGenderIn(List<String> schoolTypes, List<String> schoolCategories, List<String> schoolGender);
+
 }
