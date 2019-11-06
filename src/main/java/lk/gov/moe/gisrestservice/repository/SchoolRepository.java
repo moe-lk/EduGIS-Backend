@@ -1,5 +1,6 @@
 package lk.gov.moe.gisrestservice.repository;
 
+import lk.gov.moe.gisrestservice.model.RadialSearchSchool;
 import lk.gov.moe.gisrestservice.model.School;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

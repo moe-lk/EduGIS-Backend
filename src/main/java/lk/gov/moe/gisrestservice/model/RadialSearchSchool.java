@@ -1,5 +1,4 @@
 package lk.gov.moe.gisrestservice.model;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,13 +7,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 
-
 @Entity
-@Table(name = "schools")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"}, allowGetters = true)
-@ApiModel(description = "Class representing a School")
-public class School implements Serializable {
+@ApiModel(description = "Class representing a search result(school) within area")
+public class RadialSearchSchool implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -55,6 +52,10 @@ public class School implements Serializable {
 	@ApiModelProperty(notes = "School category", example = "P", required = false, position = 8)
 	private String category;
 
+	@Column(name = "distance")
+	@ApiModelProperty(notes = "Distance to center of search area in (km)", example = "2.110523930812917", required = false, position = 9)
+	private Float distance;
+
 	public Long getSchoolCensus() {
 		return schoolCensus;
 	}
@@ -82,6 +83,7 @@ public class School implements Serializable {
 	public String getCategory() {
 		return category;
 	}
-
-
+	public Float getDistance() {
+		return distance;
+	}
 }

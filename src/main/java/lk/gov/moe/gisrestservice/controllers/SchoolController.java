@@ -2,7 +2,10 @@ package lk.gov.moe.gisrestservice.controllers;
 
 import io.swagger.annotations.*;
 import lk.gov.moe.gisrestservice.model.School;
+import lk.gov.moe.gisrestservice.model.api.ErrorDetails;
 import lk.gov.moe.gisrestservice.model.api.FilterRequest;
+import lk.gov.moe.gisrestservice.model.api.RadialAreaFilterRequest;
+import lk.gov.moe.gisrestservice.model.dto.RadialSearchSchoolListDTO;
 import lk.gov.moe.gisrestservice.model.geo.GeoJSON;
 import lk.gov.moe.gisrestservice.model.geo.GeoObject;
 import lk.gov.moe.gisrestservice.exception.BadRequestException;
@@ -143,19 +146,62 @@ public class SchoolController {
 	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = ""),
-		@ApiResponse(code = 400, message = "Invalid school type"),
-		@ApiResponse(code = 400, message = "Invalid school category"),
-		@ApiResponse(code = 400, message = "Invalid school gender ")
+		@ApiResponse(code = 400, message = "Invalid school type/category/gender, Missing field", response = ErrorDetails.class)
 		}
 	)
 	public ResponseEntity<SchoolListDTO> filterSchools(@RequestBody
 														   FilterRequest payload) {
 
-		ArrayList<String> typeList = payload.getType();
-		ArrayList<String> categoryList = payload.getCategory();
-		ArrayList<String> genderList = payload.getGender();
+		try {
 
-		return schoolService.filterSchools(typeList, categoryList, genderList);
+			ArrayList<String> typeList = payload.getType();
+			ArrayList<String> categoryList = payload.getCategory();
+			ArrayList<String> genderList = payload.getGender();
+
+			return schoolService.filterSchools(typeList, categoryList, genderList);
+		} catch(Exception e) {
+			throw new BadRequestException("Missing field");
+		}
+
+
+	}
+
+
+	@RequestMapping(value="/search/radial", method = RequestMethod.POST)
+	@ApiOperation(
+		value = "Return schools and corresponding distances(to center) within radial area", notes = "returns filtered schools",
+		response = SchoolListDTO.class
+	)
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "", response = RadialSearchSchoolListDTO.class),
+		@ApiResponse(code = 400, message = "Missing field(s)", response = ErrorDetails.class)
+	}
+	)
+	public ResponseEntity<RadialSearchSchoolListDTO> radialSearch(@RequestBody RadialAreaFilterRequest payload) {
+
+		Float centerLat = null;
+		Float centerLon = null;
+		Double radius = null;
+		Integer limit = null;
+		Boolean resultsAscending = null;
+
+		try {
+
+			centerLat = payload.getCenterLatitude();
+			centerLon = payload.getCenterLongitude();
+			radius = payload.getRadius();
+			limit = payload.getLimit();
+			resultsAscending = payload.getResultsAscending();
+
+		} catch(Exception e) {
+
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+
+			throw new BadRequestException("Missing field(s)");
+		}
+
+		return schoolService.radialSearch(centerLat, centerLon, radius, limit, resultsAscending);
 
 	}
 

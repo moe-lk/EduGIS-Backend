@@ -1,5 +1,5 @@
 package lk.gov.moe.gisrestservice.exception;
-import lk.gov.moe.gisrestservice.exception.ErrorDetails;
+import lk.gov.moe.gisrestservice.model.api.ErrorDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

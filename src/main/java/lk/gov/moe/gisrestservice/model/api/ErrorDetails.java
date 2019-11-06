@@ -1,4 +1,4 @@
-package lk.gov.moe.gisrestservice.exception;
+package lk.gov.moe.gisrestservice.model.api;
 import java.util.Date;
 public class ErrorDetails {
 
