@@ -22,3 +22,29 @@ JAR file generate at target\{gis-VERSION.jar}
 
 
 
+CURL Examples
+
+1. Filter request - Filter schools based on school category, type and gender composition
+    ```shell script
+    curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"type":["1AB"], "category": ["N"], "gender":["Mixed"]}' http://localhost:8080/schools/filter
+    ```
+
+2. Radial search (all) - List all schools within circular search area
+    ```shell script
+    curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"centerLatitude": 7.219584, "centerLongitude": 79.862550, "radius": 20.0}' http://localhost:8080/schools/search/radial
+    ```
+3. Radial search (with limit) - List all schools within circular search area
+
+    ```shell script
+   curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"centerLatitude": 7.219584, "centerLongitude": 79.862550, "radius": 20.0, "limit": 20}' http://localhost:8080/schools/search/radial
+   ```
+4. Radial search (distance to the center, descending order) 
+    
+    ```shell script
+   curl -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '{"centerLatitude": 7.219584, "centerLongitude": 79.862550, "radius": 20.0,"limit": 10, "resultsAscending": false}' http://localhost:8080/schools/search/radial
+   ```
+
+
+
+
+
