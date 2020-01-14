@@ -2,13 +2,18 @@ package lk.gov.moe.gisrestservice.model.dto;
 import lk.gov.moe.gisrestservice.model.School;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 public class SchoolListDTO implements Serializable {
 
 	private List<School> schools;
 	private Integer total;
 	private String message;
-	public SchoolListDTO() {}
+
+	public SchoolListDTO() {
+		this.schools = new ArrayList<>();
+		this.total = 0;
+	}
 
 	public SchoolListDTO(List<School> schools) {
 		this.schools = schools;

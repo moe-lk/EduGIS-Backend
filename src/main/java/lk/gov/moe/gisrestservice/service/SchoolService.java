@@ -5,6 +5,8 @@ import lk.gov.moe.gisrestservice.model.RadialSearchSchool;
 import lk.gov.moe.gisrestservice.model.School;
 import lk.gov.moe.gisrestservice.model.dto.RadialSearchSchoolListDTO;
 import lk.gov.moe.gisrestservice.model.dto.SchoolListDTO;
+import lk.gov.moe.gisrestservice.model.geo.GeoJSON;
+import lk.gov.moe.gisrestservice.model.geo.GeoObject;
 import lk.gov.moe.gisrestservice.model.geo.GeoSchool;
 import lk.gov.moe.gisrestservice.repository.RadialSearchSchoolRepository;
 import lk.gov.moe.gisrestservice.repository.SchoolRepository;
@@ -30,6 +32,7 @@ public class SchoolService {
 
 	/**
 	 * Get all schools
+	 *
 	 * @return
 	 */
 	public List<School> getSchools() {
@@ -40,6 +43,7 @@ public class SchoolService {
 
 	/**
 	 * Get school by zone
+	 *
 	 * @param schoolZone
 	 * @return
 	 */
@@ -51,6 +55,7 @@ public class SchoolService {
 
 	/**
 	 * Get school by census id
+	 *
 	 * @param schoolId
 	 * @return
 	 */
@@ -62,17 +67,19 @@ public class SchoolService {
 
 	/**
 	 * Get schools by multiple types
+	 *
 	 * @param schoolTypes
 	 * @return
 	 */
 	public List<School> getSchoolsByTypes(List<String> schoolTypes) {
 
-		return repository.findSchoolsByTypes(schoolTypes);
+		return repository.findSchoolsByTypesIn(schoolTypes);
 
 	}
 
 	/**
 	 * List of geojson features of schools
+	 *
 	 * @return
 	 */
 	public List<GeoSchool> geoGetSchools() {
@@ -90,6 +97,7 @@ public class SchoolService {
 
 	/**
 	 * Check given school type(s) are valid
+	 *
 	 * @param types
 	 * @return
 	 */
@@ -109,6 +117,7 @@ public class SchoolService {
 
 	/**
 	 * Check given school zone exist
+	 *
 	 * @param schoolZone
 	 * @return
 	 */
@@ -127,52 +136,101 @@ public class SchoolService {
 
 	/**
 	 * Filter results based on school type, category and gender composition
-	 * @param inputTypes school type
+	 *
+	 * @param inputTypes    school type
 	 * @param inputCategory school category
-	 * @param inputGender school gender composition
+	 * @param inputGender   school gender composition
 	 * @return
 	 */
-	public ResponseEntity<SchoolListDTO> filterSchools(ArrayList<String> inputTypes, ArrayList<String> inputCategory, ArrayList<String> inputGender) {
+	public SchoolListDTO filterSchools(ArrayList<String> inputTypes, ArrayList<String> inputCategory, ArrayList<String> inputGender) {
 
 		ArrayList<String> types = new ArrayList<>(Arrays.asList("1AB", "1C", "Type 2", "Type 3"));
 		ArrayList<String> categories = new ArrayList<>(Arrays.asList("N", "P"));
 		ArrayList<String> gender = new ArrayList<>(Arrays.asList("Mixed", "Boys", "Girls"));
 
 		//do type validation
-		if (Collections.disjoint(inputTypes, types)) {
+		if(!inputTypes.isEmpty() && Collections.disjoint(inputTypes, types)) {
 			throw new BadRequestException("Invalid school type");
-		} else if (Collections.disjoint(inputCategory, categories)) {
+		}
+		else if(!inputCategory.isEmpty() && Collections.disjoint(inputCategory, categories)) {
 			throw new BadRequestException("Invalid school category");
-		} else if (Collections.disjoint(inputGender, gender)) {
+		}
+		else if(!inputGender.isEmpty() && Collections.disjoint(inputGender, gender)) {
 			throw new BadRequestException("Invalid school gender");
 		}
 
-		SchoolListDTO schoolListDto = new SchoolListDTO(repository.findSchoolsBySchoolTypeInAndCategoryInAndGenderIn(types, categories, gender));
+		SchoolListDTO schoolListDto;
 
-		return ResponseEntity.ok(schoolListDto);
+		//TODO: implement
+		if(inputTypes.isEmpty() && inputCategory.isEmpty() && inputGender.isEmpty()) {
+			schoolListDto = new SchoolListDTO();
+		}
+		else if(!inputTypes.isEmpty() && inputCategory.isEmpty() && inputGender.isEmpty()) {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsByTypesIn(inputTypes));
+		}
+		else if(!inputCategory.isEmpty() && inputTypes.isEmpty() && inputGender.isEmpty()) {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsByCategoryIn(inputCategory));
+		}
+		else if(!inputGender.isEmpty() && inputTypes.isEmpty() && inputCategory.isEmpty()) {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsByGenderIn(inputGender));
+		}
+		else if(inputGender.isEmpty()) {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsByTypesInAndCategoryIn(inputTypes, inputCategory));
+		}
+		else if(inputCategory.isEmpty()) {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsByTypesInAndGenderIn(inputTypes, inputGender));
+		}
+		else if(inputTypes.isEmpty()) {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsByCategoryInAndGenderIn(inputCategory, inputGender));
+		}
+		else {
+			schoolListDto = new SchoolListDTO(repository.findSchoolsBySchoolTypesInAndCategoryInAndGenderIn(inputTypes, inputCategory, inputGender));
+		}
+
+		return schoolListDto;
+
+	}
+
+	public ResponseEntity<GeoJSON> geoFilter(ArrayList<String> inputTypes, ArrayList<String> inputCategory, ArrayList<String> inputGender) {
+
+		List<School> schools = filterSchools(inputTypes, inputCategory, inputGender).getSchools();
+		List<GeoSchool> geoSchoolsList = new ArrayList<>();
+
+		for(School school : schools) {
+			geoSchoolsList.add(new GeoSchool(school));
+		}
+
+		List<? extends GeoObject> geoSchools = geoSchoolsList;
+		return ResponseEntity.ok(new GeoJSON((List<GeoObject>) geoSchools));
 
 	}
 
 
 	/**
 	 * Execute radial search and return school list and corresponsing distance from centre
-	 * @param centerLatitude radial centre latitude
+	 *
+	 * @param centerLatitude  radial centre latitude
 	 * @param centerLongitude radial centre longitude
-	 * @param radius radius of search perimeter
-	 * @param limit return results limit
+	 * @param radius          radius of search perimeter
+	 * @param limit           return results limit
 	 * @return
 	 */
-	public ResponseEntity<RadialSearchSchoolListDTO> radialSearch(Float centerLatitude, Float centerLongitude, Double radius, @Nullable Integer limit, @Nullable Boolean isResultsAscending) {
+	public ResponseEntity<RadialSearchSchoolListDTO> radialSearch(Float centerLatitude, Float centerLongitude, Double radius,
+																  @Nullable
+																	  Integer limit,
+																  @Nullable
+																	  Boolean isResultsAscending
+																 ) {
 
 		RadialSearchSchoolListDTO schoolListDTO;
 
-		if (limit != null)
-			if (isResultsAscending == null || isResultsAscending)
+		if(limit != null)
+			if(isResultsAscending == null || isResultsAscending)
 				schoolListDTO = new RadialSearchSchoolListDTO(radialSearchSchoolRepository.radialSearchLimit(centerLatitude, centerLongitude, radius, limit));
 			else
 				schoolListDTO = new RadialSearchSchoolListDTO(radialSearchSchoolRepository.radialSearchLimitDesc(centerLatitude, centerLongitude, radius, limit));
 		else {
-			if (isResultsAscending == null || isResultsAscending)
+			if(isResultsAscending == null || isResultsAscending)
 				schoolListDTO = new RadialSearchSchoolListDTO(radialSearchSchoolRepository.radialSearchAll(centerLatitude, centerLongitude, radius));
 			else
 				schoolListDTO = new RadialSearchSchoolListDTO(radialSearchSchoolRepository.radialSearchAllDesc(centerLatitude, centerLongitude, radius));

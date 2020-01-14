@@ -22,7 +22,22 @@ public interface SchoolRepository extends CrudRepository<School, Long> {
 	List<School> findSchoolsByType(String schoolType);
 
 	@Query(value = "SELECT * FROM schools WHERE school_type in (?1)", nativeQuery=true)
-	List<School> findSchoolsByTypes(List<String> schoolTypes);
+	List<School> findSchoolsByTypesIn(List<String> schoolTypes);
+
+	@Query(value = "SELECT * FROM schools WHERE school_category in (?1)", nativeQuery=true)
+	List<School> findSchoolsByCategoryIn(List<String> schoolCategories);
+
+	@Query(value = "SELECT * FROM schools WHERE gender_composition in (?1)", nativeQuery=true)
+	List<School> findSchoolsByGenderIn(List<String> schoolGender);
+
+	@Query(value = "SELECT * FROM schools WHERE school_type in (?1) and school_category in (?2)", nativeQuery=true)
+	List<School> findSchoolsByTypesInAndCategoryIn(List<String> schoolTypes, List<String> schoolCategory);
+
+	@Query(value = "SELECT * FROM schools WHERE school_category in (?1) and gender_composition in (?2)", nativeQuery=true)
+	List<School> findSchoolsByCategoryInAndGenderIn(List<String> schoolCategory, List<String> schoolGender);
+
+	@Query(value = "SELECT * FROM schools WHERE school_type in (?1) and gender_composition in (?2)", nativeQuery=true)
+	List<School> findSchoolsByTypesInAndGenderIn(List<String> schoolCategory, List<String> schoolGender);
 
 	@Query(value = "SELECT DISTINCT school_zone FROM schools", nativeQuery=true)
 	List<String> findSchoolZones();
@@ -31,6 +46,7 @@ public interface SchoolRepository extends CrudRepository<School, Long> {
 	List<School> findSchoolsByName(String schoolString);
 
 	@Query(value = "SELECT * FROM schools WHERE school_type in (?1) and school_category in (?2) and gender_composition in (?3)", nativeQuery=true)
-	List<School> findSchoolsBySchoolTypeInAndCategoryInAndGenderIn(List<String> schoolTypes, List<String> schoolCategories, List<String> schoolGender);
+	List<School> findSchoolsBySchoolTypesInAndCategoryInAndGenderIn(List<String> schoolTypes, List<String> schoolCategories, List<String> schoolGender);
+
 
 }

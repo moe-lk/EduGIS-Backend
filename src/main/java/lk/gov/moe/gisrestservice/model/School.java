@@ -37,7 +37,7 @@ public class School implements Serializable {
 
 	@Column(name = "number_of_students")
 	@ApiModelProperty(notes = "Number of students", example = "100", required = false, position = 4)
-	private Integer numberOfStudent;
+	private Integer numberOfStudents;
 
 	@Column(name = "latitude")
 	@ApiModelProperty(notes = "Latitude", example = "7.0728064", required = false, position = 5)
@@ -67,8 +67,8 @@ public class School implements Serializable {
 	public String getSchoolType() {
 		return schoolType;
 	}
-	public Integer getNumberOfStudent() {
-		return numberOfStudent;
+	public Integer getNumberOfStudents() {
+		return numberOfStudents;
 	}
 	public Float getLatitude() {
 		return latitude;

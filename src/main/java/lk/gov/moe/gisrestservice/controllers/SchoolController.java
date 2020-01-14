@@ -138,19 +138,45 @@ public class SchoolController {
 		return ResponseEntity.ok(new GeoJSON((List<GeoObject>) geoSchoolsList));
 	}
 
+//	@RequestMapping(value="/filter", method = RequestMethod.POST)
+//	@ApiOperation(
+//		value = "Returns schools by type, category and gender composition", notes = "returns filtered schools",
+//		response = SchoolListDTO.class
+//	)
+//	@ApiResponses(value = {
+//		@ApiResponse(code = 200, message = ""),
+//		@ApiResponse(code = 400, message = "Invalid school type/category/gender, Missing field", response = ErrorDetails.class)
+//		}
+//	)
+//	public ResponseEntity<SchoolListDTO> filterSchools(@RequestBody
+//														   FilterRequest payload) {
+//
+//		try {
+//
+//			ArrayList<String> typeList = payload.getType();
+//			ArrayList<String> categoryList = payload.getCategory();
+//			ArrayList<String> genderList = payload.getGender();
+//
+//			return schoolService.filterSchools(typeList, categoryList, genderList);
+//		} catch(Exception e) {
+//			throw new BadRequestException("Missing field");
+//		}
+//
+//
+//	}
 
-	@RequestMapping(value="/filter", method = RequestMethod.POST)
+	@RequestMapping(value="/filter/geo", method = RequestMethod.POST)
 	@ApiOperation(
-		value = "Returns schools by type, category and gender composition", notes = "returns filtered schools",
-		response = SchoolListDTO.class
+		value = "Returns GeoJSON format schools by type, category and gender composition", notes = "returns filtered schools",
+		response = GeoJSON.class
 	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 200, message = ""),
 		@ApiResponse(code = 400, message = "Invalid school type/category/gender, Missing field", response = ErrorDetails.class)
-		}
+	}
 	)
-	public ResponseEntity<SchoolListDTO> filterSchools(@RequestBody
-														   FilterRequest payload) {
+	public ResponseEntity<GeoJSON> geofilterSchools(@RequestBody
+															FilterRequest payload) {
 
 		try {
 
@@ -158,14 +184,11 @@ public class SchoolController {
 			ArrayList<String> categoryList = payload.getCategory();
 			ArrayList<String> genderList = payload.getGender();
 
-			return schoolService.filterSchools(typeList, categoryList, genderList);
+			return schoolService.geoFilter(typeList, categoryList, genderList);
 		} catch(Exception e) {
 			throw new BadRequestException("Missing field");
 		}
-
-
 	}
-
 
 	@RequestMapping(value="/search/radial", method = RequestMethod.POST)
 	@ApiOperation(
